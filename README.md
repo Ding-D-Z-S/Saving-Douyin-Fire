@@ -177,39 +177,6 @@
 
 > ⚠️ 修改 App ID/Secret 后需**重启控制台**（`lark-oapi` 长连接没有 stop 方法）。
 
----
-
-## 🗂️ 目录结构
-
-```
-Fire with dy/                    # 整个项目可整体拷贝
-├─ install.bat / start.bat       # 安装 / 启动
-├─ run-dry.bat                   # 只验证登录与好友（不发送）
-├─ send-now.bat                  # 立即发送（用 data/config.json 配置）
-├─ run.py                        # 命令行发送入口（多账号/单账号）
-├─ requirements.txt              # 运行依赖
-├─ requirements-dev.txt          # 测试依赖
-├─ app/                          # 抖音核心：浏览器、会话读取、发送、配置、多账号
-├─ web/                          # Flask 本地控制台
-│  ├─ server.py                  # 路由（仅本机）
-│  ├─ templates/                 # 首页/配置/结果/机器人配置 页面
-│  ├─ static/                    # CSS / JS
-│  └─ services/                  # 配置、调度、日志、自检、飞书等
-├─ runtime/                      # 【运行环境，项目内】Python 与 ms-playwright/Chromium
-├─ data/                         # 【数据，项目内】
-│  ├─ config.json                # 分组、计划、勾选、发送间隔、全局设置
-│  ├─ conversations.json         # 会话缓存（左侧列表）
-│  ├─ storage-state.json         # 抖音登录态
-│  ├─ .env.local                 # HEADLESS、TRACE、DOUYIN_COOKIE 等
-│  ├─ .feishu-app.local.json     # 飞书 App 凭据【机密】
-│  ├─ activity-log.jsonl         # 中文活动日志
-│  ├─ feishu-history.jsonl       # 飞书消息窗口历史
-│  ├─ uploads/                   # 图形/表情
-│  └─ assets/sparks/             # 抖音原生火花图标缓存
-├─ artifacts/                    # 低层诊断：run.log、result.json、截图、trace
-├─ config/                       # 多账号示例（config/accounts.json）与贴纸
-└─ tests/                        # pytest 测试
-```
 
 ---
 
