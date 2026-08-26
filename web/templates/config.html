@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}配置 - 抖音续火花控制台{% endblock %}
+{% block content %}
+<section class="planner-layout">
+  <aside class="sidebar card">
+    <div class="sidebar-header">
+      <div>
+        <h2>真实会话数据</h2>
+        <p class="hint">只读取抖音左侧会话栏中的头像、名称、火花状态和摘要，不读取聊天正文。</p>
+      </div>
+      <div class="sidebar-actions">
+        <form id="refresh-conversations-form" method="post" action="{{ url_for('refresh_conversations') }}">
+          <input type="hidden" name="preserve_selection" value="1">
+          <button type="submit" class="secondary">刷新会话数据</button>
+        </form>
+        <form id="auto-select-spark-form" method="post" action="{{ url_for('auto_select_spark') }}">
+          <button type="submit" class="secondary">自动勾选火花</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="douyin-sidebar-list">
+      {% set selected_ids = config.selected_conversations | selectattr('enabled') | map(attribute='id') | list %}
+      {% set selected_names = config.selected_conversations | selectattr('enabled') | map(attribute='name') | list %}
+      {% set spark_items = conversations.conversations | selectattr('has_spark') | list %}
+      {% set plain_items = conversations.conversations | rejectattr('has_spark') | list %}
+      {% for item in spark_items + plain_items %}
+      <label class="douyin-row">
+        <input class="row-checkbox" type="checkbox" name="selected_conversation_ids" value="{{ item.id }}" form="config-form" {% if item.id in selected_ids or item.name in selected_names %}checked{% endif %}>
+        <div class="avatar-wrap">
+          {% if item.avatar and item.avatar.src %}
+            <img class="avatar" src="{{ item.avatar.src }}" alt="{{ item.name }}">
+          {% else %}
+            <div class="avatar avatar-fallback">{{ item.name[:1] }}</div>
+          {% endif %}
+        </div>
+        <div class="row-main">
+          <div class="row-top">
+            <span class="name">{{ item.name }}</span>
+            <span class="meta-time">{{ item.sidebar_time or '' }}</span>
+          </div>
+          <div class="row-bottom">
+            {% if item.has_spark %}
+              <span class="spark-inline spark-{{ item.spark_mode or 'active' }}" {% if item.spark_detail %}title="{{ item.spark_detail }}"{% endif %}>
+                {% if item.spark_icon_local %}
+                  <img class="native-spark-icon" src="{{ url_for('spark_asset', filename=item.spark_icon_local) }}" alt="">
+                {% elif item.spark_icon_url %}
+                  <img class="native-spark-icon" src="{{ item.spark_icon_url }}" alt="">
+                {% else %}
+                  <span class="spark-fallback" aria-hidden="true"></span>
+                {% endif %}
+                <span>{{ item.spark_native_label or item.spark_label or (item.spark_days ~ ' 天' if item.spark_days else '有火花') }}</span>
+              </span>
+            {% else %}
+              <span class="spark-inline spark-none">无火花</span>
+            {% endif %}
+            <span class="preview">{{ item.preview or '' }}</span>
+          </div>
+        </div>
+      </label>
+      {% else %}
+      <div class="empty-state">暂无真实会话数据，请先扫码登录并刷新。</div>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <section class="planner card">
+    <h2>每日定时发送计划</h2>
+    <form id="config-form" method="post" action="{{ url_for('save_config_page') }}" class="planner-form">
+      <div class="checks-row">
+        <label class="checkbox"><input type="checkbox" name="schedule_enabled" {% if config.schedule and config.schedule.enabled %}checked{% endif %}> 启用每日定时发送</label>
+      </div>
+
+      <div class="selected-summary">
+        目前发送会话人有：
+        {% set selected_names = config.selected_conversations | selectattr('enabled') | map(attribute='name') | list %}
+        <strong id="selected-summary-names">{{ selected_names | join('、') if selected_names else '暂未勾选' }}</strong>
+      </div>
+
+      <div class="group-create-row">
+        <input type="text" name="group_name" placeholder="输入分组名称，例如：续火花1组">
+        <button type="submit" name="form_action" value="create_group" class="secondary">把当前勾选加入分组</button>
+      </div>
+
+      <div class="schedule-header">
+        <h3>消息发送列表</h3>
+        <button type="button" id="add-schedule-entry">添加计划</button>
+      </div>
+
+      <p class="hint">每条计划选择“当前勾选”或已保存分组。“间隔”用于对多人分组逐人发送时的等待时间（秒）；单人分组自动忽略，可留空。测试发送会忽略时间并打开可见浏览器立即真实发送，点击后会再次确认。</p>
+      <div id="schedule-list" class="schedule-list" data-existing='{{ (config.schedule.entries if config.schedule and config.schedule.entries else [{"group": "当前勾选", "hour": 9, "minute": 15, "content": "续火花 ✨", "interval_seconds": 20}]) | tojson }}' data-groups='{{ (config.groups if config.groups else []) | tojson }}'></div>
+
+      <div class="console-wrap">
+        <div class="console-header">
+          <label for="log-tail">日志信息</label>
+          <button type="submit" form="clear-log-form" class="secondary compact">清空日志</button>
+        </div>
+        <pre id="log-tail" class="console">{{ job.log_tail or '暂无运行日志' }}</pre>
+      </div>
+
+      <div class="actions inline top-gap">
+        <button type="submit" name="form_action" value="save_plan">保存计划</button>
+        <a class="button-link secondary" href="{{ url_for('index') }}">返回首页</a>
+      </div>
+    </form>
+  </section>
+</section>
+<form id="clear-log-form" method="post" action="{{ url_for('clear_logs') }}" hidden></form>
+{% endblock %}

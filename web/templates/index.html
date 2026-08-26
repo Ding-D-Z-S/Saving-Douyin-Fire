@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}首页 - 抖音续火花控制台{% endblock %}
+{% block content %}
+<section class="grid two">
+  <article class="card">
+    <h2>认证状态</h2>
+    <ul class="kv">
+      <li><span>登录状态</span><strong>{{ '已保存' if auth.has_storage_state or auth.cookie_present else '未配置' }}</strong></li>
+    </ul>
+    <div class="actions stack">
+      <form method="post" action="{{ url_for('capture_auth') }}">
+        <button type="submit">扫码生成登录状态</button>
+      </form>
+      <form method="post" action="{{ url_for('verify_auth') }}">
+        <button type="submit" class="secondary">验证登录状态</button>
+      </form>
+      <form method="post" action="{{ url_for('refresh_conversations') }}">
+        <button type="submit" class="secondary">刷新真实会话数据</button>
+      </form>
+    </div>
+  </article>
+
+  <article class="card">
+    <h2>执行控制</h2>
+    <ul class="kv">
+      <li><span>当前状态</span><strong id="job-status">{{ job.status }}</strong></li>
+      <li><span>模式</span><strong id="job-mode">{{ job.mode or '-' }}</strong></li>
+      <li><span>PID</span><strong id="job-pid">{{ job.pid or '-' }}</strong></li>
+      <li><span>开始时间</span><code id="job-started">{{ job.started_at or '-' }}</code></li>
+      <li><span>结束时间</span><code id="job-finished">{{ job.finished_at or '-' }}</code></li>
+    </ul>
+    <div class="actions inline">
+      <form method="post" action="{{ url_for('run_send') }}">
+        <button type="submit" class="danger">立即真实发送</button>
+      </form>
+    </div>
+  </article>
+</section>
+
+<section class="card">
+  <div class="section-heading">
+    <div>
+      <h2>运行环境与文件位置</h2>
+      <p class="hint">默认从当前 Fire with dy 项目目录自动发现，复制到其他盘符或文件夹后会自动跟随。</p>
+    </div>
+    <span class="status-badge {{ 'ok' if self_check.ok else 'warning' }}">{{ '环境可用' if self_check.ok else '需要检查' }}</span>
+  </div>
+  <ul class="kv">
+    <li><span>当前项目根目录</span><code>{{ self_check.project_root }}</code></li>
+    <li><span>Python 环境</span><code>{{ self_check.python }}</code></li>
+    <li><span>项目内浏览器目录</span><code>{{ self_check.browser_dir }}</code></li>
+    <li><span>本地数据目录</span><code>{{ self_check.data_dir }}</code></li>
+  </ul>
+  <div class="self-check-list">
+    {% for item in self_check.checks %}
+    <div class="self-check-item {{ 'ok' if item.ok else 'error' }}">
+      <strong>{{ item.name }}</strong>
+      <span>{{ item.detail }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <details class="advanced-box top-gap">
+    <summary>可选：指定项目内环境位置</summary>
+    <p class="hint">留空即自动扫描。为保证可移动，所选文件必须位于当前 Fire with dy 文件夹内。</p>
+    <form method="post" action="{{ url_for('save_runtime_paths') }}" class="settings-grid">
+      <label>Python 可执行文件
+        <input name="python_path" value="{{ config.runtime_paths.python if config.runtime_paths else '' }}" placeholder="例如 runtime\python\python.exe">
+      </label>
+      <label>浏览器可执行文件
+        <input name="browser_path" value="{{ config.runtime_paths.browser if config.runtime_paths else '' }}" placeholder="留空使用 runtime\ms-playwright 自动扫描">
+      </label>
+      <div class="actions"><button type="submit">保存环境位置</button></div>
+    </form>
+  </details>
+</section>
+
+<section class="card">
+  <h2>配置入口</h2>
+  <p class="hint">左侧仿抖音会话栏、右侧每日定时发送计划都在配置页里完成。</p>
+  <a class="button-link" href="{{ url_for('config_page') }}">打开配置页</a>
+</section>
+{% endblock %}

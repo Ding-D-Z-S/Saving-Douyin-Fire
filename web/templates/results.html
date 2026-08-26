@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}结果 - 抖音续火花控制台{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>分组信息</h2>
+  {% if config.groups %}
+    <div class="group-list">
+      {% for group in config.groups %}
+        <div class="group-card">
+          <div class="group-header">
+            <strong>{{ group.name }}</strong>
+            <form method="post" action="{{ url_for('delete_group') }}" class="delete-group-form">
+              <input type="hidden" name="group_name" value="{{ group.name }}">
+              <button type="submit" class="secondary">删除分组</button>
+            </form>
+          </div>
+          <div class="group-members">{{ group.members | join('、') if group.members else '暂无成员' }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>还没有分组。</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>最新任务状态</h2>
+  <ul class="kv">
+    <li><span>状态</span><strong>{{ job.status }}</strong></li>
+    <li><span>模式</span><strong>{{ job.mode or '-' }}</strong></li>
+    <li><span>退出码</span><strong>{{ job.exit_code if job.exit_code is not none else '-' }}</strong></li>
+    <li><span>产物目录</span><code>{{ artifacts_dir }}</code></li>
+  </ul>
+</section>
+
+<section class="grid two">
+  <article class="card">
+    <h2>最近发送结果</h2>
+    {% if result and result.results %}
+      <ul class="result-list">
+        {% for item in result.results %}
+          <li class="result-item result-{{ item.status }}">
+            <strong>{{ item.target }}</strong>
+            <span>{{ '成功' if item.status == 'success' else '失败' }} · 已发送 {{ item.sent or 0 }} 条</span>
+            {% if item.error %}<small>{{ item.error }}</small>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>还没有发送结果。</p>
+    {% endif %}
+  </article>
+
+  <article class="card">
+    <h2>失败截图</h2>
+    {% if screenshots %}
+      <ul class="file-list">
+        {% for item in screenshots %}
+          <li><code>{{ item }}</code></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>没有截图。</p>
+    {% endif %}
+
+    <h2>Trace 文件</h2>
+    {% if traces %}
+      <ul class="file-list">
+        {% for item in traces %}
+          <li><code>{{ item }}</code></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>没有 trace。</p>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}

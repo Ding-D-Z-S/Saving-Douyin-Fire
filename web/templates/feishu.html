@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}机器人配置 - 抖音续火花控制台{% endblock %}
+{% block content %}
+<section class="feishu-layout">
+  <article class="card feishu-settings">
+    <div class="section-heading">
+      <div>
+        <h2>飞书应用机器人</h2>
+        <p class="hint">用 App ID / App Secret 接收你的 0 / 1 / 2 指令并回复。凭据只保存在项目本地，页面与日志不会显示完整值。</p>
+      </div>
+      <span class="status-badge {{ 'ok' if feishu.app.configured else 'warning' }}">
+        {{ '已配置' if feishu.app.configured else '未配置' }}
+      </span>
+    </div>
+    <div class="masked-secret">
+      <strong>App ID</strong> {{ feishu.app.masked_app_id }}
+      <span class="connection-badge">{{ feishu.app.connection_state }}</span>
+    </div>
+    <form method="post" action="{{ url_for('save_feishu_app') }}" class="settings-grid">
+      <label>App ID
+        <input name="app_id" autocomplete="off" placeholder="cli_xxx" value="{{ feishu.app.masked_app_id if feishu.app.configured else '' }}">
+      </label>
+      <label>App Secret
+        <input name="app_secret" type="password" autocomplete="new-password" placeholder="{{ '已保存（留空不变）' if feishu.app.configured else '输入 App Secret' }}" {{ '' if feishu.app.configured else 'required' }}>
+      </label>
+      <label class="full">允许的用户 Open ID / 群 Chat ID（每行一个，留空允许任意发送人）
+        <textarea name="allowed_ids" rows="3" placeholder="ou_xxx（可选）"></textarea>
+      </label>
+      <div class="actions stack">
+        <button type="submit">保存并连接</button>
+        {% if feishu.app.configured %}
+        <button type="submit" form="clear-feishu-app-form" class="danger">清除应用配置</button>
+        {% endif %}
+      </div>
+    </form>
+    <details class="advanced-box top-gap">
+      <summary>需要开通的权限与事件（最小权限）</summary>
+      <ul class="kv plain">
+        <li><span>接收单聊消息</span><strong>im:message.p2p_msg:readonly</strong></li>
+        <li><span>以机器人身份回复</span><strong>im:message:send_as_bot</strong></li>
+        <li><span>群聊 @机器人</span><strong>im:message.group_at_msg:readonly（仅群里用才加）</strong></li>
+        <li><span>事件订阅</span><strong>接收消息 v2.0（im.message.receive_v1）</strong></li>
+        <li><span>无需</span><strong>通讯录 / 群成员 / 文件 / 云文档 / 日历，也无需公网 IP</strong></li>
+      </ul>
+    </details>
+    <div class="inbound-state">
+      <strong>远程 0 / 1 / 2 接收状态</strong>
+      <span>{{ feishu.inbound_status }}</span>
+      <small>长连接通过本地进程拨出，系统保持仅监听 127.0.0.1，不会为回调开放公网端口。首次收到你的指令后，后续任务成败与 Cookie 过期提醒都将回复到你所在会话。</small>
+    </div>
+  </article>
+
+  <article class="card feishu-chat-card">
+    <div class="section-heading">
+      <div>
+        <h2>飞书消息窗口</h2>
+        <p class="hint">这里显示本机发往飞书的消息和发送结果。</p>
+      </div>
+    </div>
+    <div id="feishu-chat" class="feishu-chat" aria-live="polite">
+      {% for item in history %}
+      <div class="chat-message {{ item.direction }} {{ item.status }}">
+        <div class="chat-meta">
+          <span>{% if item.direction == 'inbound' %}用户发送{% elif item.direction == 'system' %}系统通知{% else %}网页发送{% endif %}</span>
+          <time>{{ item.time }}</time>
+        </div>
+        <div class="chat-bubble">{{ item.message }}</div>
+        {% if item.status == 'failed' %}<small>发送失败：{{ item.error }}</small>{% endif %}
+      </div>
+      {% else %}
+      <div class="empty-state">暂无飞书消息。在飞书里给本机器人发送 0 / 1 / 2 试试，或在上方保存应用凭据后在网页发送。</div>
+      {% endfor %}
+    </div>
+    <form method="post" action="{{ url_for('send_feishu_message') }}" class="chat-compose">
+      <textarea name="message" rows="4" maxlength="4000" placeholder="输入要由网页用户发送给飞书的消息" required></textarea>
+      <div class="actions inline">
+        <button type="submit">发送</button>
+        <button type="submit" class="secondary" formaction="{{ url_for('send_feishu_default') }}" formnovalidate>发送默认信息</button>
+      </div>
+    </form>
+  </article>
+</section>
+<form id="clear-feishu-app-form" method="post" action="{{ url_for('clear_feishu_app') }}" hidden></form>
+{% endblock %}
