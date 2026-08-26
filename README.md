@@ -6,8 +6,9 @@
 - 🚀 复用上游的 Python + Playwright 抖音发送核心
 - 🖱️ 左侧仿抖音会话栏，右侧每日定时计划，所见即所得
 - 💬 内置飞书应用机器人，可远程用 `0 / 1 / 2` 操控并接收任务通知
-<img width="2492" height="1381" alt="image" src="https://github.com/user-attachments/assets/46f1894f-4624-48ff-a36e-5a1b77d0e4be" />
-<img width="2472" height="1372" alt="image" src="https://github.com/user-attachments/assets/a1fa0486-d2b6-4c67-b1df-8949b1cf08fc" />
+<img width="2474" height="1373" alt="image" src="https://github.com/user-attachments/assets/6c0804d3-1c6b-48c2-a1ed-49dad7c3defe" />
+<img width="2474" height="1365" alt="image" src="https://github.com/user-attachments/assets/ca2ea5df-713c-4ae2-abfa-6caf1751a525" />
+
 
 ---
 
@@ -124,7 +125,8 @@
 
 ### 1. 开放平台建应用
 [飞书开放平台 ](https://open.feishu.cn/app)→ 开发者后台 → 创建**企业自建应用** 。
-<img width="1213" height="1064" alt="tp-1" src="https://github.com/user-attachments/assets/ba54e11b-b4c4-4570-8379-97f0c3332c7a" />
+<img width="1227" height="1069" alt="image" src="https://github.com/user-attachments/assets/008d52fe-cd3f-40f6-8b0d-56faea02f063" />
+
 
 
 ### 2. 只开必要权限（最小权限）
@@ -133,7 +135,8 @@
 | 接收单聊消息 | `im:message.p2p_msg:readonly` |
 | 以机器人身份回复 | `im:message:send_as_bot` |
 | 群聊里 @机器人（仅需群聊时） | `im:message.group_at_msg:readonly` |
-<img width="2419" height="1130" alt="tp-2" src="https://github.com/user-attachments/assets/fe64e078-c9fe-413e-8394-8eeb82bdd243" />
+<img width="2471" height="987" alt="image" src="https://github.com/user-attachments/assets/b09f0a2a-237c-4ea0-bbdd-2ab0c607a7d2" />
+
 
 
 
@@ -142,7 +145,8 @@
 
 ### 3. 订阅事件（选长连接）
 「事件与回调」→ 订阅 **接收消息 v2.0**（即 `im.message.receive_v1`），接收方式选 **长连接**。
-<img width="2459" height="1153" alt="tp-3" src="https://github.com/user-attachments/assets/003d31b1-34d3-4776-8bdb-f252b5e35d32" />
+<img width="2479" height="980" alt="image" src="https://github.com/user-attachments/assets/3ad34b9a-5a69-4973-b9cb-f2db7af0bc97" />
+
 
 
 
@@ -154,8 +158,10 @@
 - 填 **App ID** 与 **App Secret**
 - 点「**保存并连接**」（长连接会自动建立）
 - 凭据只保存在项目本地 `data/.feishu-app.local.json`，页面只显示掩码
-<img width="2451" height="1224" alt="image" src="https://github.com/user-attachments/assets/602b3f2d-3804-4fd7-b2e9-6630956c3228" />
-<img width="2486" height="276" alt="image" src="https://github.com/user-attachments/assets/311a9417-5cae-4e6c-b1fc-ed88b95f3cf8" />
+<img width="2476" height="1337" alt="image" src="https://github.com/user-attachments/assets/ab50edf2-5db4-4c4c-ac07-0f173dd78d80" />
+
+<img width="2471" height="1065" alt="image" src="https://github.com/user-attachments/assets/50e1d120-92f8-49c2-afaa-7895fed8b930" />
+
 
 ### 5. 使用
 在飞书里给机器人发：
